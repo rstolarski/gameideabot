@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build x64",
+            "type": "shell",
+            "command": "go build .",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build ARM",
+            "type": "shell",
+            "command": "env GOOS=linux GOARCH=arm GOARM=5 go build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
