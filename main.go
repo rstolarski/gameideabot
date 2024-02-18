@@ -30,7 +30,16 @@ func init() {
 }
 
 func main() {
-	log.Println("Adding handlers")
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+	})
+
+	err := s.Open()
+	if err != nil {
+		log.Fatalf("Cannot open the session: %v", err)
+	}
+
+	log.Println("Adding commands...")
 	s.AddHandler(command.Add)
 	s.AddHandler(command.Del)
 	s.AddHandler(command.List)
@@ -38,18 +47,13 @@ func main() {
 
 	s.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
 
-	err := s.Open()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	defer s.Close()
 
-	log.Println("Bot is online")
-
 	// Prevent bot from turning off by listening to channel for specific message
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	log.Println("Press Ctrl+C to exit")
+	<-stop
 
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-	<-sc
+	log.Println("Gracefully shutting down.")
 }
